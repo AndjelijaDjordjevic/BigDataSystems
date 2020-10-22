@@ -1,0 +1,31 @@
+Cassandra:
+bin/apache-cassandra-3.11.6/bin$
+	python cqlsh.py
+
+python ../../../bin/apache-cassandra-3.11.6/bin/cqlsh.py
+
+CREATE KEYSPACE cass WITH REPLICATION = { 'class': 'SimpleStrategy', 'replication_factor': 1 };
+USE cass;
+
+CREATE TABLE cass.Analysis_Info(attribute text, timestamp timestamp, elements int, min float, max float, mean float, std float, value float, PRIMARY KEY (attribute, timestamp)) WITH CLUSTERING ORDER BY (timestamp DESC);
+
+DROP TABLE cass.Analysis_Info;
+
+SELECT * FROM cass.Analysis_Info WHERE attribute = 'walking' ORDER BY timestamp DESC;
+SELECT * FROM cass.Analysis_Info WHERE attribute = 'temperature' ORDER BY timestamp DESC;
+SELECT * FROM cass.Analysis_Info WHERE attribute = 'pressure' ORDER BY timestamp DESC;
+
+SELECT COUNT(*) FROM cass.Analysis_Info WHERE attribute = 'walking' ORDER BY timestamp DESC;
+SELECT COUNT(*) FROM cass.Analysis_Info WHERE attribute = 'temperature' ORDER BY timestamp DESC;
+SELECT COUNT(*) FROM cass.Analysis_Info WHERE attribute = 'pressure' ORDER BY timestamp DESC;
+
+
+Producer:
+
+python BD2_producer.py /home/aleksandra.stojnev/apps/andjelija.djordjevic/BD2/Data localhost:9092 Moving
+
+
+
+Consumer:
+
+spark-submit --master spark://localhost:7077 --jars spark-streaming-kafka-0-8-assembly_2.11-2.4.5.jar BD2_consumer.py localhost:9092 Moving 1 50.8 52 -0.31 1 1497426579882 1500390560894
